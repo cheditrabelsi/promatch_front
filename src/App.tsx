@@ -4,7 +4,6 @@ import AppWrapper from "./AppWrapper";
 import { useAuth } from "./providers";
 import HomePage1 from "./pages/HomePage1";
 import JobDetail from "./pages/JobDetail";
-
 const LoginPage = lazy(() => import("@/pages/AuthPages/LoginPage"));
 const RegisterPage = lazy(() => import("@/pages/AuthPages/RegisterPage"));
 const ForgotPasswordPage = lazy(() => import("@/pages/AuthPages/ForgotPasswordPage"));
