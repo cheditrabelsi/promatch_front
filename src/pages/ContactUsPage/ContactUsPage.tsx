@@ -229,9 +229,9 @@ const ContactUsPage: React.FC = () => {
                         onChange={handleChange}
                         required
                         sx={{ bgcolor: 'white', '& .MuiOutlinedInput-root': { borderRadius: 1 } }}
-                        size="medium"
+                        size="medium" 
                       />
-                    </Box>
+                  </Box>
                   </Stack>
 
                   {/* Ligne 2 : Email */}
