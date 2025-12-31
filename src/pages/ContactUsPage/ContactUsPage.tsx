@@ -135,10 +135,9 @@ const ContactUsPage: React.FC = () => {
                 color="text.secondary"
                 sx={{ mb: 6, lineHeight: 1.6 }}
               >
-                Our dedicated support team is here to help you navigate your career journey. Whether you have questions or need assistance, we are just a message away.
+              Our dedicated support  team is here to help you navigate your career journey. Whether you have questions or need assistance, we are just a message away.
               </Typography>
 
-              {/* Conteneur des Icônes : Flex Wrap au lieu de Grid */}
               <Box sx={{ display: 'flex', flexWrap: 'wrap', rowGap: 4, columnGap: 2 }}>
                 
                 {/* Icone 1 */}
