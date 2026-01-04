@@ -6,6 +6,7 @@ import { useFormik } from 'formik';
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import * as Yup from 'yup';
+import { jwtDecode } from "jwt-decode";
 
 const FORM_INITIAL_VALUES = {
   email: '',
@@ -37,33 +38,42 @@ const useLoginForm = () => {
     validationSchema,
     validateOnChange: false,
     onSubmit: async (values, { setSubmitting }) => {
-      try {
-        setSubmitting(true);
+  try {
+    setSubmitting(true);
 
-        const payload: ILoginPayload = {
-          email: values.email,
-          password: values.password,
-        };
+    const payload: ILoginPayload = {
+      email: values.email,
+      password: values.password,
+    };
 
-        /* appel API */
-        const loginResponse: ILoginResponse = await login(payload);
+    // 🔹 appel API
+    const loginResponse: ILoginResponse = await login(payload);
 
-        /* extraction token + user */
-        const token = loginResponse.tokens.access;
-        const user  = loginResponse.user;
+    // 🔴 PROTECTION (évite tout crash)
+    if (!loginResponse || !loginResponse.access) {
+      throw new Error("Réponse login invalide");
+    }
 
-        /* connexion côté React */
-        setLogin(token, user);
+    // 🔹 décoder l'utilisateur EXACTEMENT comme l'ancien front
+    const user = jwtDecode(loginResponse.access);
 
-        form.resetForm();
-        navigate('/profile');
-      } catch (error) {
-        console.error(error);
-      } finally {
-        setSubmitting(false);
-      }
-    },
-  });
+    // 🔹 stocker tokens
+    localStorage.setItem(
+      "authTokens",
+      JSON.stringify(loginResponse)
+    );
+
+    // 🔹 connexion côté React
+    setLogin(loginResponse.access, user);
+
+    form.resetForm();
+    navigate("/");
+  } catch (error) {
+    console.error("Login error:", error);
+  } finally {
+    setSubmitting(false);
+  }
+},});
 
   useEffect(() => {
     return () => {
