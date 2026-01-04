@@ -11,6 +11,7 @@ const MyJobsPage = lazy(() => import("@/pages/MyJobsPage"));
 const SavedJobsPage = lazy(() => import("@/pages/SavedJobsPage"));
 const MessagesPage = lazy(() => import("@/pages/MessagesPage"));
 const ProfilePage = lazy(() => import("@/pages/ProfilePage"));
+const UploadResumePage = lazy(() => import("@/pages/UploadResumePage"));
 
 // Ajoute tes nouvelles pages :
 const AboutUsPage = lazy(() => import("@/pages/AboutUsPage"));
@@ -46,6 +47,7 @@ function App() {
             <Route path="/login" element={<LoginPage />} />
             <Route path="/register" element={<RegisterPage />} />
             <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+            <Route path="/upload-resume" element={<UploadResumePage/>} />
             <Route path="*" element={<Navigate to="/login" />} />
           </Route>
         </Routes>
