@@ -49,7 +49,8 @@ register: async (payload: IModels.IRegisterPayload, _options?: any) => {
   try {
     const authService = new AuthService();
     const response = await authService.register(payload);
-    set({ registerSuccessMessage: response.data.message });
+    console.log('Reponse inscription;',response)
+    //set({ registerSuccessMessage: response.data.message });
   } catch (error: any) {
     console.error(error);
     if (error.response) {

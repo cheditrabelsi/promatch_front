@@ -10,6 +10,7 @@ import {
   Cog8ToothIcon,
   ArrowLeftStartOnRectangleIcon,
   BookmarkIcon,
+  DocumentArrowUpIcon,
 } from "@heroicons/react/24/outline";
 import { Dialog, Menu, Transition } from "@headlessui/react";
 import { useAuth } from "@/providers";
@@ -27,6 +28,7 @@ const Header = () => {
         { name: "My Jobs", href: "/my-jobs", icon: BriefcaseIcon },
         { name: "Saved Jobs", href: "/saved-jobs", icon: BookmarkIcon },
         { name: "Messages", href: "/messages", icon: ChatBubbleLeftRightIcon },
+        { name: "Upload CV", href: "/upload-resume", icon: DocumentArrowUpIcon },
       ];
     }
 

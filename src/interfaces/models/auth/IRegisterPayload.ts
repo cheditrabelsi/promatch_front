@@ -1,6 +1,8 @@
+// src/interfaces/models.ts (ou fichier correspondant)
 export interface IRegisterPayload {
-  user_type_name: string;
   email: string;
   password: string;
-  confirmPassword?: string;
+  is_candidate?: boolean;
+  is_recruiter?: boolean;
+  company_name?: string;       // ← ajouté (optionnel)
 }

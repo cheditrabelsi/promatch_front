@@ -19,7 +19,7 @@ useEffect(() => {
   const fetchJob = async () => {
     try {
     
-      const response = await axios.get(`http://127.0.0.1:8000/api/jobs/${id}/`);
+      const response = await axios.get(`http://127.0.0.1:8000/api/jobs/recent/`);
       console.log('jobbb',response)
       setJob(response.data);
     } catch (error) {

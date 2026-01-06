@@ -1,11 +1,12 @@
+// src/forms/auth/LoginForm/useLoginForm.ts
 import { ILoginPayload, ILoginResponse } from '@/interfaces/models';
-import { jwtDecode } from "jwt-decode";
 import { useAuth } from '@/providers';
 import useAuthStore from '@/stores/auth.store';
 import { useFormik } from 'formik';
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import * as Yup from 'yup';
+import { jwtDecode } from "jwt-decode";
 
 const FORM_INITIAL_VALUES = {
   email: '',
@@ -36,8 +37,7 @@ const useLoginForm = () => {
     initialValues: FORM_INITIAL_VALUES,
     validationSchema,
     validateOnChange: false,
-   
-onSubmit: async (values, { setSubmitting }) => {
+    onSubmit: async (values, { setSubmitting }) => {
   try {
     setSubmitting(true);
 
@@ -47,29 +47,30 @@ onSubmit: async (values, { setSubmitting }) => {
     };
 
     // 🔹 appel API
-   const loginResponse: ILoginResponse = await login(payload);
+    const loginResponse: ILoginResponse = await login(payload);
 
-if (!loginResponse || !loginResponse.access) {
-  throw new Error("Réponse login invalide");
-}
+    // 🔴 PROTECTION (évite tout crash)
+    if (!loginResponse || !loginResponse.access) {
+      throw new Error("Réponse login invalide");
+    }
 
-interface JwtPayload {
-  user_id: number;
-  email: string;
-  exp: number;
-  iat: number;
-}
+    // 🔹 récupérer l'utilisateur depuis la réponse (fallback sur le token)
+    const user = loginResponse.user || jwtDecode(loginResponse.access);
 
-const user = jwtDecode<JwtPayload>(loginResponse.access);
+    // 🔹 stocker tokens
+    localStorage.setItem(
+      "authTokens",
+      JSON.stringify(loginResponse)
+    );
 
-localStorage.setItem(
-  "authTokens",
-  JSON.stringify(loginResponse)
-);
+    // 🔹 connexion côté React
+    setLogin(loginResponse.access, user);
 
-setLogin(loginResponse.access, user);
     form.resetForm();
-    navigate("/profile");
+    const isRecruiter = Boolean((user as any)?.is_recruiter);
+    const isAdmin = Boolean((user as any)?.is_staff);
+    const target = isAdmin ? "/admin" : isRecruiter ? "/dashboard" : "/";
+    navigate(target);
   } catch (error) {
     console.error("Login error:", error);
   } finally {
