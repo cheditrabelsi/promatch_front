@@ -24,6 +24,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const logout = () => {
     StorageService.removeItem("access_token");
+    setUser(null);
     setIsAuthenticated(false);
   };
 

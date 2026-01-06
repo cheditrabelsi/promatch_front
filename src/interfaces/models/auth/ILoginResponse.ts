@@ -1,10 +1,8 @@
 import { IUserAccount } from "../user-account";
 
-
+// Reflects API payload: refresh/access tokens plus attached user.
 export interface ILoginResponse {
-  user: IUserAccount;     // ← plus précis
-  tokens: {
-    access: string;
-    refresh: string;
-  };
+  refresh: string;
+  access: string;
+  user: IUserAccount;
 }

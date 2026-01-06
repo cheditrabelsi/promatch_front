@@ -54,8 +54,8 @@ const useLoginForm = () => {
       throw new Error("Réponse login invalide");
     }
 
-    // 🔹 décoder l'utilisateur EXACTEMENT comme l'ancien front
-    const user = jwtDecode(loginResponse.access);
+    // 🔹 récupérer l'utilisateur depuis la réponse (fallback sur le token)
+    const user = loginResponse.user || jwtDecode(loginResponse.access);
 
     // 🔹 stocker tokens
     localStorage.setItem(
@@ -67,7 +67,8 @@ const useLoginForm = () => {
     setLogin(loginResponse.access, user);
 
     form.resetForm();
-    navigate("/");
+    const isRecruiter = Boolean((user as any)?.is_recruiter);
+    navigate(isRecruiter ? "/dashboard" : "/");
   } catch (error) {
     console.error("Login error:", error);
   } finally {

@@ -1,7 +1,12 @@
-// ILoginResponse.ts
+// IUserAccount.ts
 export interface IUserAccount {
   id: number;
   email: string;
-  role?: string;          // ajoute les champs que ton back renvoie
- 
+  first_name?: string;
+  last_name?: string;
+  title?: string;
+  phone?: string;
+  location?: string;
+  is_candidate?: boolean;
+  is_recruiter?: boolean;
 }
