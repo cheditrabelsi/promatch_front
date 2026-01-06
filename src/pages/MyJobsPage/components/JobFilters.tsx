@@ -16,9 +16,11 @@ import axios from 'axios';
 type FiltersOptions = {
   cities: string[];
   categories: string[];
-  job_types: string[];
-  experience_levels: string[];
-  tags: string[];
+};
+
+type Option = {
+  value: string;
+  label: string;
 };
 
 type ActiveFilters = {
@@ -29,7 +31,6 @@ type ActiveFilters = {
   levels?: string[];
   salary_min?: number;
   salary_max?: number;
-  tags?: string[];
 };
 
 interface JobFiltersProps {
@@ -40,10 +41,9 @@ export default function JobFilters({ onFiltersChange }: JobFiltersProps) {
   const [options, setOptions] = useState<FiltersOptions>({
     cities: [],
     categories: [],
-    job_types: [],
-    experience_levels: [],
-    tags: [],
   });
+  const [jobTypesOptions, setJobTypesOptions] = useState<Option[]>([]);
+  const [experienceLevelsOptions, setExperienceLevelsOptions] = useState<Option[]>([]);
 
   // États des filtres actifs
   const [search, setSearch] = useState('');
@@ -52,70 +52,83 @@ export default function JobFilters({ onFiltersChange }: JobFiltersProps) {
   const [types, setTypes] = useState<string[]>([]);
   const [levels, setLevels] = useState<string[]>([]);
   const [salary, setSalary] = useState<[number, number]>([0, 10000]);
-  const [tags, setTags] = useState<string[]>([]);
 
   // Chargement des options de filtres (villes, catégories, etc.)
-useEffect(() => {
-  const fetchAndExtractFilters = async () => {
-    try {
-      const response = await axios.get('http://127.0.0.1:8000/api/jobs/recent/?limit=100'); // prends assez pour avoir toutes les valeurs
-      const jobs = response.data; // ← c’est un tableau d’offres comme ton exemple
+  useEffect(() => {
+    const fetchAndExtractFilters = async () => {
+      try {
+        const response = await axios.get('http://127.0.0.1:8000/api/jobs/recent/?limit=100'); // prends assez pour avoir toutes les valeurs
+        const jobs = response.data; // ← c’est un tableau d’offres comme ton exemple
 
-      console.log('Offres reçues :', jobs);
+        console.log('Offres reçues :', jobs);
 
-      // Extraction unique des valeurs
-      const cities = [...new Set(jobs.map((job: any) => job.location).filter(Boolean))];
-      const categories = [...new Set(jobs.map((job: any) => job.category).filter(Boolean))];
-      const jobTypes = [...new Set(jobs.map((job: any) => job.job_type).filter(Boolean))];
-      const experienceLevels = [...new Set(jobs.map((job: any) => job.experience).filter(Boolean))];
+        // Extraction unique des valeurs
+        const cities = [...new Set(jobs.map((job: any) => job.location).filter(Boolean))];
+        const categories = [...new Set(jobs.map((job: any) => job.category?.toUpperCase()).filter(Boolean))];
+        const jobTypes = [...new Set(jobs.map((job: any) => job.job_type).filter(Boolean))];
+        const experienceLevels = [...new Set(jobs.map((job: any) => job.experience).filter(Boolean))];
 
-      // Conversion des noms pour l’affichage (optionnel)
-      const formatExperience = (exp: string) => {
-        const map: any = {
-          NO_EXP: 'Sans expérience',
-          JUNIOR: 'Junior (1-3 ans)',
-          MID: 'Intermédiaire (3-5 ans)',
-          SENIOR: 'Senior (5+ ans)',
-          EXPERT: 'Expert',
+        // Conversion des noms pour l’affichage (optionnel)
+        const formatExperience = (exp: string) => {
+          const map: any = {
+            NO_EXP: 'Sans expérience',
+            JUNIOR: 'Junior (1-3 ans)',
+            MID: 'Intermédiaire (3-5 ans)',
+            SENIOR: 'Senior (5+ ans)',
+            EXPERT: 'Expert',
+          };
+          return map[exp] || exp;
         };
-        return map[exp] || exp;
-      };
 
-      const formatJobType = (type: string) => {
-        const map: any = {
-          FULL_TIME: 'CDI',
-          PART_TIME: 'Temps partiel',
-          FREELANCE: 'Freelance',
-          INTERNSHIP: 'Stage',
-          CONTRACT: 'CDD',
+        const formatJobType = (type: string) => {
+          const map: any = {
+            FULL_TIME: 'CDI',
+            PART_TIME: 'Temps partiel',
+            FREELANCE: 'Freelance',
+            INTERNSHIP: 'Stage',
+            CONTRACT: 'CDD',
+          };
+          return map[type] || type;
         };
-        return map[type] || type;
-      };
 
-      setOptions({
-        cities,
-        categories,
-        job_types: jobTypes.map(formatJobType),
-        experience_levels: experienceLevels.map(formatExperience),
-        tags: [], // tu pourras extraire depuis requirements plus tard si besoin
-      });
-      console.log("jobss:",options)
+        setOptions({
+          cities,
+          categories,
+        });
 
-    } catch (error) {
-      console.error('Erreur API jobs :', error);
-      // Données par défaut si backend HS
-      setOptions({
-        cities: ['Tunis', 'Sfax', 'Sousse'],
-        categories: ['IT', 'Marketing', 'Finance'],
-        job_types: ['FREELANCE', 'CDI', 'Stage'],
-        experience_levels: ['Sans expérience', 'Junior'],
-        tags: [],
-      });
-    }
-  };
+        setJobTypesOptions(
+          jobTypes.map((type: string) => ({
+            value: type,
+            label: formatJobType(type),
+          })),
+        );
+        setExperienceLevelsOptions(
+          experienceLevels.map((exp: string) => ({
+            value: exp,
+            label: formatExperience(exp),
+          })),
+        );
+      } catch (error) {
+        console.error('Erreur API jobs :', error);
+        // Données par défaut si backend HS
+        setOptions({
+          cities: ['Tunis', 'Sfax', 'Sousse'],
+          categories: ['IT', 'Marketing', 'Finance'],
+        });
+        setJobTypesOptions([
+          { value: 'FREELANCE', label: 'Freelance' },
+          { value: 'FULL_TIME', label: 'CDI' },
+          { value: 'INTERNSHIP', label: 'Stage' },
+        ]);
+        setExperienceLevelsOptions([
+          { value: 'NO_EXP', label: 'Sans expérience' },
+          { value: 'JUNIOR', label: 'Junior' },
+        ]);
+      }
+    };
 
-  fetchAndExtractFilters();
-}, []);
+    fetchAndExtractFilters();
+  }, []);
 
   const applyFilters = () => {
     const filters: ActiveFilters = {
@@ -126,7 +139,6 @@ useEffect(() => {
       levels: levels.length ? levels : undefined,
       salary_min: salary[0] > 0 ? salary[0] : undefined,
       salary_max: salary[1] < 10000 ? salary[1] : undefined,
-      tags: tags.length ? tags : undefined,
     };
     onFiltersChange(filters);
   };
@@ -138,7 +150,6 @@ useEffect(() => {
     setTypes([]);
     setLevels([]);
     setSalary([0, 10000]);
-    setTags([]);
     onFiltersChange({});
   };
 
@@ -186,7 +197,7 @@ useEffect(() => {
                 checked={categories.includes(cat)}
                 onChange={(e) =>
                   setCategories((prev) =>
-                    e.target.checked ? [...prev, cat] : prev.filter((x) => x !== cat)
+                    e.target.checked ? [...prev, cat] : prev.filter((x) => x !== cat),
                   )
                 }
               />
@@ -200,21 +211,43 @@ useEffect(() => {
       {/* Type de contrat */}
       <div>
         <h3 className="font-semibold mb-3">Type de contrat</h3>
-        {options.job_types.map((type) => (
+        {jobTypesOptions.map((type) => (
           <FormControlLabel
-            key={type}
+            key={type.value}
             control={
               <Checkbox
                 size="small"
-                checked={types.includes(type)}
+                checked={types.includes(type.value)}
                 onChange={(e) =>
                   setTypes((prev) =>
-                    e.target.checked ? [...prev, type] : prev.filter((x) => x !== type)
+                    e.target.checked ? [...prev, type.value] : prev.filter((x) => x !== type.value),
                   )
                 }
               />
             }
-            label={type}
+            label={type.label}
+          />
+        ))}
+      </div>
+
+      {/* Expérience */}
+      <div>
+        <h3 className="font-semibold mb-3">Expérience</h3>
+        {experienceLevelsOptions.map((level) => (
+          <FormControlLabel
+            key={level.value}
+            control={
+              <Checkbox
+                size="small"
+                checked={levels.includes(level.value)}
+                onChange={(e) =>
+                  setLevels((prev) =>
+                    e.target.checked ? [...prev, level.value] : prev.filter((x) => x !== level.value),
+                  )
+                }
+              />
+            }
+            label={level.label}
           />
         ))}
       </div>

@@ -17,7 +17,12 @@ type Job = {
 
 const LIMIT = 10; // Nombre de jobs par page
 
-const JobList: React.FC = () => {
+interface JobListProps {
+  search?: string;
+  location?: string;
+}
+
+const JobList: React.FC<JobListProps> = ({ search, location }) => {
   const [recentJobs, setRecentJobs] = useState<Job[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [loadingMore, setLoadingMore] = useState<boolean>(false);
@@ -35,8 +40,15 @@ const JobList: React.FC = () => {
         setLoadingMore(true);
       }
 
+      const params = new URLSearchParams({
+        limit: LIMIT.toString(),
+        offset: currentOffset.toString(),
+      });
+      if (search) params.append('search', search);
+      if (location) params.append('location', location);
+
       const response = await axios.get(
-        `http://127.0.0.1:8000/api/jobs/recent/?limit=${LIMIT}&offset=${currentOffset}`
+        `http://127.0.0.1:8000/api/jobs/recent/?${params.toString()}`
       );
 
       const newJobs: Job[] = response.data; // ou response.data.results si paginé ainsi
@@ -66,7 +78,7 @@ const JobList: React.FC = () => {
   // Chargement initial
   useEffect(() => {
     fetchJobs(0, true);
-  }, []);
+  }, [search, location]);
 
   // Chargement infini avec Intersection Observer (optionnel mais recommandé)
   // Tu peux l'ajouter plus tard, ici on garde simple

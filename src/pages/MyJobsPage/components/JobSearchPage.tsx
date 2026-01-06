@@ -24,6 +24,7 @@ type Filters = {
   city?: string;
   categories?: string[];
   types?: string[];
+  levels?: string[];
   salary_min?: number;
   salary_max?: number;
 };
@@ -42,44 +43,49 @@ const JobSearchPage: React.FC = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const fetchJobs = useCallback(async (page: number) => {
-    scrollToTop();
-    setLoading(true);
-    const offset = (page - 1) * LIMIT;
-
-    try {
-      const params = new URLSearchParams({
-        limit: LIMIT.toString(),
-        offset: offset.toString(),
-      });
-
-      if (filters.search) params.append('search', filters.search);
-      if (filters.city) params.append('location', filters.city);
-      if (filters.categories?.length) params.append('category', filters.categories.join(','));
-      if (filters.types?.length) params.append('job_type', filters.types.join(','));
-      if (filters.salary_min) params.append('salary_min', filters.salary_min.toString());
-      if (filters.salary_max) params.append('salary_max', filters.salary_max.toString());
-
-      const response = await axios.get(`http://127.0.0.1:8000/api/jobs/recent/?${params}`);
-      const data: Job[] = response.data;
-
-      setJobs(data);
-      setCurrentPage(page);
-      console.log("heyyyy",data)
-
-      // Retour en haut après chargement
+  const fetchJobs = useCallback(
+    async (page: number) => {
       scrollToTop();
-    } catch (error) {
-      console.error('Erreur:', error);
-      setJobs([]);
-    } finally {
-      setLoading(false);
-    }
-  }, [filters]);
+      setLoading(true);
+      const offset = (page - 1) * LIMIT;
+
+      try {
+        const params = new URLSearchParams({
+          limit: LIMIT.toString(),
+          offset: offset.toString(),
+          sort_by: sortBy,
+        });
+
+        if (filters.search) params.append('search', filters.search);
+        if (filters.city) params.append('location', filters.city);
+        if (filters.categories?.length) params.append('category', filters.categories.join(','));
+        if (filters.types?.length) params.append('job_type', filters.types.join(','));
+        if (filters.levels?.length) params.append('experience', filters.levels.join(','));
+        if (filters.salary_min) params.append('salary_min', filters.salary_min.toString());
+        if (filters.salary_max) params.append('salary_max', filters.salary_max.toString());
+
+        const response = await axios.get(`http://127.0.0.1:8000/api/jobs/recent/?${params}`);
+        const data: Job[] = response.data;
+
+        setJobs(data);
+        setCurrentPage(page);
+        console.log('heyyyy', data);
+
+        // Retour en haut après chargement
+        scrollToTop();
+      } catch (error) {
+        console.error('Erreur:', error);
+        setJobs([]);
+      } finally {
+        setLoading(false);
+      }
+    },
+    [filters, sortBy],
+  );
 
   useEffect(() => {
     fetchJobs(1);
-  }, [filters]);
+  }, [filters, sortBy]);
 
   // Détermine si on a une page suivante
   const hasNextPage = jobs.length === LIMIT;
@@ -139,7 +145,7 @@ const JobSearchPage: React.FC = () => {
               {jobs.map((job) => (
                 <JobCard
                   key={job.id}
-                  id={job.id} 
+                  id={job.id}
                   title={job.title}
                   company={job.company || 'Entreprise anonyme'}
                   industry={job.category}
@@ -152,33 +158,33 @@ const JobSearchPage: React.FC = () => {
           )}
 
           {/* PAGINATION AVEC NUMÉROS */}
-         {/* PAGINATION SIMPLE : Précédent - Page X - Suivant */}
-{hasPrevPage || hasNextPage ? (
-  <div className="flex justify-center items-center gap-6 mt-12">
-    {/* Bouton Précédent */}
-    <button
-      onClick={() => fetchJobs(currentPage - 1)}
-      disabled={currentPage === 1}
-      className="flex items-center gap-2 px-6 py-3 border border-gray-300 rounded-lg font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition"
-    >
-      Précédent
-    </button>
+          {/* PAGINATION SIMPLE : Précédent - Page X - Suivant */}
+          {hasPrevPage || hasNextPage ? (
+            <div className="flex justify-center items-center gap-6 mt-12">
+              {/* Bouton Précédent */}
+              <button
+                onClick={() => fetchJobs(currentPage - 1)}
+                disabled={currentPage === 1}
+                className="flex items-center gap-2 px-6 py-3 border border-gray-300 rounded-lg font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition"
+              >
+                Précédent
+              </button>
 
-    {/* Numéro de page actuel */}
-    <div className="flex items-center justify-center w-12 h-12 rounded-lg bg-[#309689] text-white font-bold text-lg">
-      {currentPage}
-    </div>
+              {/* Numéro de page actuel */}
+              <div className="flex items-center justify-center w-12 h-12 rounded-lg bg-[#309689] text-white font-bold text-lg">
+                {currentPage}
+              </div>
 
-    {/* Bouton Suivant */}
-    <button
-      onClick={() => fetchJobs(currentPage + 1)}
-      disabled={!hasNextPage}
-      className="flex items-center gap-2 px-6 py-3 bg-[#309689] text-white rounded-lg font-medium hover:bg-[#267a6e] disabled:opacity-50 disabled:cursor-not-allowed transition"
-    >
-      Suivant
-    </button>
-  </div>
-) : null}
+              {/* Bouton Suivant */}
+              <button
+                onClick={() => fetchJobs(currentPage + 1)}
+                disabled={!hasNextPage}
+                className="flex items-center gap-2 px-6 py-3 bg-[#309689] text-white rounded-lg font-medium hover:bg-[#267a6e] disabled:opacity-50 disabled:cursor-not-allowed transition"
+              >
+                Suivant
+              </button>
+            </div>
+          ) : null}
         </section>
       </div>
     </div>

@@ -1,5 +1,5 @@
-// src/forms/auth/LoginForm/useLoginForm.ts
 import { ILoginPayload, ILoginResponse } from '@/interfaces/models';
+import { jwtDecode } from "jwt-decode";
 import { useAuth } from '@/providers';
 import useAuthStore from '@/stores/auth.store';
 import { useFormik } from 'formik';
@@ -36,34 +36,46 @@ const useLoginForm = () => {
     initialValues: FORM_INITIAL_VALUES,
     validationSchema,
     validateOnChange: false,
-    onSubmit: async (values, { setSubmitting }) => {
-      try {
-        setSubmitting(true);
+   
+onSubmit: async (values, { setSubmitting }) => {
+  try {
+    setSubmitting(true);
 
-        const payload: ILoginPayload = {
-          email: values.email,
-          password: values.password,
-        };
+    const payload: ILoginPayload = {
+      email: values.email,
+      password: values.password,
+    };
 
-        /* appel API */
-        const loginResponse: ILoginResponse = await login(payload);
+    // 🔹 appel API
+   const loginResponse: ILoginResponse = await login(payload);
 
-        /* extraction token + user */
-        const token = loginResponse.tokens.access;
-        const user  = loginResponse.user;
+if (!loginResponse || !loginResponse.access) {
+  throw new Error("Réponse login invalide");
+}
 
-        /* connexion côté React */
-        setLogin(token, user);
+interface JwtPayload {
+  user_id: number;
+  email: string;
+  exp: number;
+  iat: number;
+}
 
-        form.resetForm();
-        navigate('/profile');
-      } catch (error) {
-        console.error(error);
-      } finally {
-        setSubmitting(false);
-      }
-    },
-  });
+const user = jwtDecode<JwtPayload>(loginResponse.access);
+
+localStorage.setItem(
+  "authTokens",
+  JSON.stringify(loginResponse)
+);
+
+setLogin(loginResponse.access, user);
+    form.resetForm();
+    navigate("/profile");
+  } catch (error) {
+    console.error("Login error:", error);
+  } finally {
+    setSubmitting(false);
+  }
+},});
 
   useEffect(() => {
     return () => {

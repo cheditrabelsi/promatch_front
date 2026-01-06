@@ -1,5 +1,5 @@
 // HomePage1.tsx
-import React from "react";
+import React, { useState } from "react";
 import SearchBar from "./components/SearchBar";
 import JobList from "./containers/JobList";
 import CategoryGrid from "./containers/CategoryGrid";
@@ -8,6 +8,12 @@ import Footer from "../Footer/Footer";
 import Navbar from "../NavBar/Navbar";
 
 const HomePage1: React.FC = () => {
+    const [filters, setFilters] = useState({ search: "", location: "" });
+
+    const handleSearch = (search: string, location: string = "") => {
+      setFilters({ search, location });
+    };
+
     const companies = [
     {
       name: "Spotify",
@@ -57,7 +63,7 @@ const HomePage1: React.FC = () => {
           </p>
 
           {/* Search Bar */}
-      <SearchBar/>
+      <SearchBar onSearch={handleSearch} />
           {/* Stats Section */}
           <div className="mt-8 flex justify-center flex-wrap gap-6">
             <div className="flex items-center">
@@ -86,7 +92,7 @@ const HomePage1: React.FC = () => {
     </footer>
       </div>
     </div>
-    <JobList></JobList>
+    <JobList search={filters.search} location={filters.location} />
     <CategoryGrid></CategoryGrid>
     <div className="mb-24"></div>
     <TestimonialsSection></TestimonialsSection>
