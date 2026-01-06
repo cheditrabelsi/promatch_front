@@ -68,7 +68,9 @@ const useLoginForm = () => {
 
     form.resetForm();
     const isRecruiter = Boolean((user as any)?.is_recruiter);
-    navigate(isRecruiter ? "/dashboard" : "/");
+    const isAdmin = Boolean((user as any)?.is_staff);
+    const target = isAdmin ? "/admin" : isRecruiter ? "/dashboard" : "/";
+    navigate(target);
   } catch (error) {
     console.error("Login error:", error);
   } finally {

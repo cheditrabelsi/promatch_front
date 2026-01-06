@@ -9,4 +9,8 @@ export interface IUserAccount {
   location?: string;
   is_candidate?: boolean;
   is_recruiter?: boolean;
+  is_staff?: boolean;
+  company_name?: string;
+  company_location?: string;
+  website?: string;
 }

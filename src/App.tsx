@@ -14,6 +14,8 @@ const MessagesPage = lazy(() => import("@/pages/MessagesPage"));
 const ProfilePage = lazy(() => import("@/pages/ProfilePage"));
 const UploadResumePage = lazy(() => import("@/pages/UploadResumePage"));
 const DashboardPage = lazy(() => import("@/pages/DashboardPage"));
+const CandidatePage = lazy(() => import("@/pages/CandidatePage"));
+const AdminPage = lazy(() => import("@/pages/AdminPage"));
 
 // Ajoute tes nouvelles pages :
 const AboutUsPage = lazy(() => import("@/pages/AboutUsPage"));
@@ -25,6 +27,26 @@ const RecruiterRoute = ({ children }: { children: JSX.Element }) => {
   if (!isAuthenticated) return <Navigate to="/login" replace />;
   if (!user) return <SuspenseLoader />;
   if (!user.is_recruiter) return <Navigate to="/" replace />;
+
+  return children;
+};
+
+const CandidateRoute = ({ children }: { children: JSX.Element }) => {
+  const { isAuthenticated, user } = useAuth();
+
+  if (!isAuthenticated) return <Navigate to="/login" replace />;
+  if (!user) return <SuspenseLoader />;
+  if (!user.is_candidate) return <Navigate to="/" replace />;
+
+  return children;
+};
+
+const AdminRoute = ({ children }: { children: JSX.Element }) => {
+  const { isAuthenticated, user } = useAuth();
+
+  if (!isAuthenticated) return <Navigate to="/login" replace />;
+  if (!user) return <SuspenseLoader />;
+  if (!user.is_staff) return <Navigate to="/" replace />;
 
   return children;
 };
@@ -50,6 +72,22 @@ function App() {
                 <RecruiterRoute>
                   <DashboardPage />
                 </RecruiterRoute>
+              }
+            />
+            <Route
+              path="/candidate"
+              element={
+                <CandidateRoute>
+                  <CandidatePage />
+                </CandidateRoute>
+              }
+            />
+            <Route
+              path="/admin"
+              element={
+                <AdminRoute>
+                  <AdminPage />
+                </AdminRoute>
               }
             />
             <Route path="/login" element={<Navigate to="/" />} />
