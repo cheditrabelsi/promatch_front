@@ -4,9 +4,11 @@ import {
   type ChangeEvent,
   type FormEvent,
 } from "react";
+import { useSearchParams } from "react-router-dom";
 import Alert from "@/components/core-ui/Alert";
 import PortalLayout from "@/components/layouts/portal/PortalLayout";
 import ResumeService from "@/services/resume.service";
+import { jobService } from "@/services/job.service";
 
 type UploadStatus = "idle" | "uploading" | "success" | "error";
 
@@ -14,6 +16,8 @@ const UploadResumePage = () => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [status, setStatus] = useState<UploadStatus>("idle");
   const [message, setMessage] = useState<string>("");
+  const [searchParams] = useSearchParams();
+  const jobId = searchParams.get("jobId");
 
   const isUploading = status === "uploading";
 
@@ -50,6 +54,17 @@ const UploadResumePage = () => {
       const resumeService = new ResumeService();
 
       const { data } = await resumeService.uploadResume(selectedFile);
+      const parsedJobId = jobId ? parseInt(jobId, 10) : undefined;
+
+      if (parsedJobId) {
+        await jobService.applyToJob(parsedJobId);
+        setStatus("success");
+        setMessage(
+          data?.message ||
+            `CV uploaded successfully. Application submitted for job #${parsedJobId}.`
+        );
+        return;
+      }
 
       setStatus("success");
       setMessage(
@@ -62,70 +77,49 @@ const UploadResumePage = () => {
         error?.response?.data?.message ||
         error?.response?.data?.detail ||
         "Upload failed. Please try again.";
-      setMessage(apiMessage);
+      const contextPrefix = jobId
+        ? "Upload or application failed. "
+        : "";
+      setMessage(`${contextPrefix}${apiMessage}`);
     }
   };
 
   return (
     <PortalLayout title="Upload CV">
-      <div className="w-full">
-        <div
-          className="relative overflow-hidden rounded-3xl bg-gray-900 text-white shadow-xl"
-          style={{
-            backgroundImage: "url('assets/images/home/bgHome.png')",
-            backgroundSize: "cover",
-            backgroundPosition: "center",
-          }}
-        >
-          <div className="absolute inset-0 bg-black/70" />
-          <div className="relative px-6 py-12 sm:px-10 lg:px-14">
-            <div className="max-w-3xl space-y-4">
-              <p className="inline-flex items-center rounded-full bg-[#309689]/20 px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-[#6ee7c4]">
-                Upload Resume
-              </p>
-              <h1 className="text-4xl font-extrabold leading-tight sm:text-5xl">
-                Refresh your skills with a <span className="text-[#6ee7c4]">single upload</span>
-              </h1>
-              <p className="text-base text-gray-200 sm:text-lg">
-                Drop in your PDF, DOC, or DOCX. We store the file, extract the text, and update your candidate profile so matching stays sharp.
-              </p>
-              {message && (
-                <div className="max-w-2xl">
-                  <Alert
-                    type={status === "success" ? "success" : "error"}
-                    message={message}
-                  />
-                </div>
-              )}
-            </div>
+      <div className="mx-auto max-w-3xl">
+        <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
+          <div className="space-y-2">
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#309689]">
+              Upload resume
+            </p>
+            <h1 className="text-2xl font-bold text-gray-900">Submit your CV</h1>
+            <p className="text-sm text-gray-600">
+              We store the file, extract the text, and refresh your candidate profile.
+            </p>
+            {jobId && (
+              <div className="rounded-lg bg-[#309689]/10 p-3 text-sm text-gray-800">
+                <p className="font-medium text-[#226d60]">Job reference: {jobId}</p>
+                <p>Once uploaded, we immediately submit your application for this job.</p>
+              </div>
+            )}
+            {message && (
+              <Alert type={status === "success" ? "success" : "error"} message={message} />
+            )}
+          </div>
 
-            <form
-              className="mt-8 grid gap-6 md:grid-cols-[1.2fr_0.8fr] md:items-start"
-              onSubmit={handleSubmit}
-            >
+          <form className="mt-6 space-y-5" onSubmit={handleSubmit}>
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-gray-800" htmlFor="resume">
+                CV file
+              </label>
               <label
                 htmlFor="resume"
-                className="group relative flex h-full w-full cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed border-white/30 bg-white/5 px-6 py-10 text-center backdrop-blur-sm transition hover:border-[#6ee7c4] hover:bg-white/10"
+                className="flex cursor-pointer flex-col gap-2 rounded-lg border border-dashed border-gray-300 bg-gray-50 px-4 py-6 text-center hover:border-[#309689] hover:bg-white"
               >
-                <div className="flex items-center justify-center rounded-full bg-[#309689]/20 p-4 text-[#6ee7c4] transition group-hover:bg-[#309689]/30">
-                  <svg
-                    className="h-10 w-10"
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 20 20"
-                    fill="currentColor"
-                    aria-hidden="true"
-                  >
-                    <path
-                      fillRule="evenodd"
-                      d="M14.243 5.757a3 3 0 10-4.243-4.243L4.1 7.414a1 1 0 00-.263.47l-.804 3.217a1 1 0 001.228 1.228l3.217-.804a1 1 0 00.47-.263l5.899-5.899zM13 7l-1-1-5.586 5.586a2 2 0 01-.94.528l-3.217.804a2 2 0 01-2.457-2.457l.804-3.217a2 2 0 01.528-.94L6.172 1H5a3 3 0 00-3 3v11a2 2 0 002 2h11a3 3 0 003-3v-1.172l-5-5z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
-                </div>
-                <span className="mt-4 text-lg font-semibold">
+                <span className="text-base font-semibold text-gray-800">
                   {selectedFile ? "Change file" : "Click to upload or drag and drop"}
                 </span>
-                <span className="mt-2 text-sm text-gray-200">{helperText}</span>
+                <span className="text-xs text-gray-500">{helperText}</span>
                 <input
                   id="resume"
                   name="resume"
@@ -136,31 +130,25 @@ const UploadResumePage = () => {
                   disabled={isUploading}
                 />
               </label>
+            </div>
 
-              <div className="flex h-full flex-col justify-between gap-4 rounded-2xl bg-black/60 p-6 shadow-inner ring-1 ring-white/5">
-                <div className="space-y-2">
-                  <p className="text-sm font-semibold text-white">Upload steps</p>
-                  <ul className="space-y-2 text-sm text-gray-200">
-                    <li>1. Select a PDF, DOC, or DOCX (max 5MB).</li>
-                    <li>2. We save the file securely.</li>
-                    <li>3. Text is extracted and skills are refreshed.</li>
-                  </ul>
-                </div>
-                <div className="flex flex-col gap-3">
-                  <button
-                    type="submit"
-                    className="inline-flex items-center justify-center rounded-xl bg-[#309689] px-4 py-3 text-sm font-semibold text-white shadow-lg shadow-[#309689]/30 transition hover:bg-[#268174] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#6ee7c4] disabled:cursor-not-allowed disabled:bg-[#309689]/50"
-                    disabled={isUploading}
-                  >
-                    {isUploading ? "Uploading..." : "Upload CV"}
-                  </button>
-                  <p className="text-xs text-gray-300">
-                    Matching runs on your extracted resume text, so keeping this updated helps surface the right roles.
-                  </p>
-                </div>
-              </div>
-            </form>
-          </div>
+            <div className="space-y-2">
+              <p className="text-sm font-semibold text-gray-800">Steps</p>
+              <ul className="list-disc space-y-1 pl-5 text-sm text-gray-600">
+                <li>Select a PDF, DOC, or DOCX (max 5MB).</li>
+                <li>We save the file securely and extract the text.</li>
+                <li>If a job is selected, we submit your application automatically.</li>
+              </ul>
+            </div>
+
+            <button
+              type="submit"
+              className="inline-flex w-full items-center justify-center rounded-lg bg-[#309689] px-4 py-3 text-sm font-semibold text-white transition hover:bg-[#268174] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#309689] disabled:cursor-not-allowed disabled:bg-[#309689]/50"
+              disabled={isUploading}
+            >
+              {isUploading ? "Uploading..." : "Upload CV"}
+            </button>
+          </form>
         </div>
       </div>
     </PortalLayout>

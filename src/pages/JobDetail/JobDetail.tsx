@@ -10,6 +10,7 @@ const JobDetail: React.FC = () => {
   const [loading, setLoading] = useState(true); // état de chargement
    const { id } = useParams<{ id:string }>();
    console.log('iddd',id)
+   const applyUrl = id ? `/upload-resume?jobId=${id}` : "/upload-resume";
   useEffect(() => {
   
     const fetchJob = async () => {
@@ -82,9 +83,12 @@ const JobDetail: React.FC = () => {
   </div>
 </div>
            
-      <button className="bg-[#309689] text-white px-16 py-2 rounded hover:bg-blue-700 transition">
+      <Link
+        to={applyUrl}
+        className="bg-[#309689] text-white px-16 py-2 rounded hover:bg-blue-700 transition text-center"
+      >
         Apply Job
-      </button>
+      </Link>
 
           </div>
         </div>

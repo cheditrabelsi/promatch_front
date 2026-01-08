@@ -36,6 +36,16 @@ export const jobService = {
     return response.data;
   },
 
+  // Candidature à une offre en utilisant le CV déjà uploadé
+  applyToJob: async (jobId: number): Promise<IApplication> => {
+    const response = await axios.post(
+      `${API_URL}/applications/`,
+      { job: jobId },
+      { headers: getAuthHeader() }
+    );
+    return response.data;
+  },
+
   // Mettre à jour le statut d'une candidature
   updateApplicationStatus: async (appId: number, status: string): Promise<void> => {
     await axios.patch(`${API_URL}/applications/${appId}/`, { status }, { headers: getAuthHeader() });
