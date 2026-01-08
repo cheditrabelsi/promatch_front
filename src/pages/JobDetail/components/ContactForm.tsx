@@ -1,5 +1,4 @@
 import {
-  UserIcon,
   EnvelopeIcon,
   PhoneIcon,
   ChatBubbleBottomCenterTextIcon
@@ -10,25 +9,24 @@ import { FiUser } from 'react-icons/fi';
 
 export default function ContactForm() {
   return (
-    <div className="max-w-md mx-auto bg-[#EBF5F4] p-6 rounded-lg shadow-md">
+    <div className="w-full bg-[#EBF5F4] p-6 rounded-lg shadow-md">
       <h2 className="text-2xl font-semibold text-gray-800 mb-6">Send Us Message</h2>
 
       <form className="space-y-4">
         {/* Full Name */}
-       <TextField
-  placeholder="Full Name"
-  variant="outlined"
-  fullWidth
-  sx={{ backgroundColor: "white", borderRadius: "0.5rem" }}
-  InputProps={{
-    startAdornment: (
-      <InputAdornment position="start">
-        <FiUser className="text-gray-500" />
-      </InputAdornment>
-    ),
-  }}
-/>
-
+        <TextField
+          placeholder="Full Name"
+          variant="outlined"
+          fullWidth
+          sx={{ backgroundColor: "white", borderRadius: "0.5rem" }}
+          InputProps={{
+            startAdornment: (
+              <InputAdornment position="start">
+                <FiUser className="text-gray-500" />
+              </InputAdornment>
+            ),
+          }}
+        />
 
         {/* Email Address */}
         <div className="flex items-center bg-white rounded-md px-3 py-2 shadow-sm">
@@ -63,7 +61,8 @@ export default function ContactForm() {
         {/* Submit Button */}
         <button
           type="submit"
-          className="w-full bg-[#309689] text-white py-2 rounded-md font-semibold hover:bg-green-700 transition"
+          className="w-full bg-[#309689] text-white py-2 rounded-md font-semibold 
+          hover:bg-green-700 transition"
         >
           Send Message
         </button>

@@ -4,6 +4,7 @@ import AppWrapper from "./AppWrapper";
 import { useAuth } from "./providers";
 import HomePage1 from "./pages/HomePage1";
 import JobDetail from "./pages/JobDetail";
+import AboutUs from "./pages/AboutUs";
 import SuspenseLoader from "./components/loaders/SuspenseLoader";
 const LoginPage = lazy(() => import("@/pages/AuthPages/LoginPage"));
 const RegisterPage = lazy(() => import("@/pages/AuthPages/RegisterPage"));
@@ -101,7 +102,7 @@ function App() {
             <Route index element={<HomePage1 />} />
             <Route path="/my-jobs" element={<MyJobsPage />} />
           <Route path="/job/:id" element={<JobDetail />} />
-            <Route path="/about" element={<AboutUsPage />} />
+            <Route path="/about" element={<AboutUs />} />
             <Route path="/contact" element={<ContactUsPage />} />
             <Route path="/login" element={<LoginPage />} />
             <Route path="/register" element={<RegisterPage />} />
